@@ -69,103 +69,13 @@ break-inside: avoid !important;
 </head>
 <body class="min-h-screen bg-gray-100 text-gray-900 flex flex-col antialiased">
 
-  <!-- SPLASH SCREEN ELEGAN KOMISI KEDISIPLINAN (THEME MAROON & GOLD) -->
-  <div 
-    id="splash-screen"
-    class="fixed inset-0 z-[100] flex flex-col items-center justify-center select-none overflow-hidden transition-all duration-700 ease-in-out"
-    style="background: radial-gradient(circle at center, #7A1417 0%, #4A0A0C 45%, #230406 100%);"
-  >
-    <div class="absolute inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute -top-40 -left-40 w-96 h-96 bg-red-600/20 rounded-full blur-3xl animate-pulse"></div>
-      <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-[#D4AF37]/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(#D4AF37_1px,transparent_1px)] [background-size:32px_32px] opacity-15"></div>
-    </div>
-
-    <div class="relative z-10 flex flex-col items-center text-center px-4 max-w-md sm:max-w-lg mx-auto">
-      <div class="relative mb-6 flex items-center justify-center">
-        <div class="absolute w-40 h-40 rounded-full border border-dashed border-[#D4AF37]/50 animate-spin" style="animation-duration: 18s;"></div>
-        <div class="absolute w-32 h-32 rounded-full border border-red-400/40 animate-ping opacity-25" style="animation-duration: 3s;"></div>
-        
-        <div class="relative w-28 h-28 rounded-3xl bg-gradient-to-br from-[#8B181B] via-[#4A0A0C] to-[#2B0507] p-1 shadow-[0_0_50px_rgba(212,175,55,0.45)] border-2 border-[#D4AF37]">
-          <div class="w-full h-full rounded-[22px] bg-[#3B0709]/95 backdrop-blur-md flex items-center justify-center relative overflow-hidden">
-            <div class="relative z-10 flex flex-col items-center justify-center">
-              <i data-lucide="shield" class="w-12 h-12 text-[#D4AF37]"></i>
-              <i data-lucide="scale" class="w-5 h-5 text-amber-200 -mt-2"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/50 border border-[#D4AF37]/50 text-[#D4AF37] text-xs font-black tracking-[0.25em] uppercase mb-3 shadow-inner">
-        <span class="w-2 h-2 rounded-full bg-[#D4AF37] animate-ping"></span>
-        KOMISI KEDISIPLINAN
-      </div>
-
-      <h1 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-[#F3E5AB] to-[#D4AF37] drop-shadow-md">
-        ADRENALIN 2026
-      </h1>
-
-      <p class="text-xs sm:text-sm text-red-200/90 font-semibold tracking-wider uppercase mt-1.5">
-        Fakultas Kedokteran • Universitas Wahid Hasyim
-      </p>
-      <p class="text-[11px] text-red-300/80 font-mono tracking-widest mt-0.5">
-        SISTEM KEDISIPLINAN TERPADU
-      </p>
-
-      <div class="mt-8 w-64 sm:w-80 flex flex-col items-center">
-        <div class="w-full h-2 bg-black/70 rounded-full overflow-hidden border border-red-900/80 p-0.5 shadow-inner">
-          <div 
-            id="splash-progress-bar"
-            class="h-full bg-gradient-to-r from-[#D4AF37] via-amber-300 to-[#FDF4DC] rounded-full transition-all duration-700 ease-out shadow-[0_0_14px_#D4AF37]"
-            style="width: 25%;"
-          ></div>
-        </div>
-
-        <div class="flex justify-between items-center w-full mt-2.5 text-[11px] text-red-200/90 font-mono">
-          <span id="splash-status-text" class="truncate">Menyiapkan 151 Peserta & Regulasi...</span>
-          <span id="splash-progress-text" class="font-bold text-[#D4AF37] ml-2">25%</span>
-        </div>
-      </div>
-
-      <div class="mt-7 flex items-center gap-3">
-        <button
-          type="button"
-          onclick="dismissSplash()"
-          class="px-6 py-2 rounded-full bg-gradient-to-r from-[#8B181B] to-[#540B0E] hover:from-[#A32023] hover:to-[#6B1214] border border-[#D4AF37] text-[#F3E5AB] text-xs font-black tracking-wider transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg flex items-center gap-2 cursor-pointer"
-        >
-          <span>Masuk ke Portal</span>
-          <span>➔</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="absolute bottom-4 text-center text-[10px] text-red-300/60 tracking-wider uppercase">
-      &copy; 2026 KOMISI KEDISIPLINAN ADRENALIN FK UNWAHAS
-    </div>
-  </div>
-
-  <!-- FAIL-SAFE SPLASH SCREEN SCRIPT (Jaminan 100% Anti-Stuck di GitHub Pages) -->
-  <script>
-    window.dismissSplash = function() {
-      const splash = document.getElementById('splash-screen');
-      if (splash) {
-        splash.classList.add('opacity-0', 'scale-105', 'pointer-events-none');
-        setTimeout(() => splash.classList.add('hidden'), 700);
-      }
-    };
-    // Auto-dismiss darurat maksimal 3.5 detik jika ada kendala jaringan/CDN di GitHub
-    setTimeout(() => {
-      if (typeof window.dismissSplash === 'function') window.dismissSplash();
-    }, 3500);
-  </script>
-
   <!-- HEADER RESMI SSO -->
   <header class="bg-[#6B1214] text-white shadow-xl sticky top-0 z-40 border-b-4 border-[#A32023] print:hidden">
     <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-wrap justify-between items-center gap-3">
       <div 
         class="flex items-center gap-3 cursor-pointer group" 
-        onclick="replaySplash()"
-        title="Klik untuk memutar ulang animasi pembuka"
+        onclick="switchModule('tatib_peserta')"
+        title="Klik untuk kembali ke beranda Tata Tertib"
       >
         <div class="p-2 bg-[#4A0A0C] rounded-lg border border-[#D4AF37] shadow-inner group-hover:scale-105 transition-transform">
           <i data-lucide="shield" class="w-6 h-6 text-[#D4AF37]"></i>
@@ -1531,58 +1441,7 @@ break-inside: avoid !important;
     };
 
     /* =========================================================================
-       4. SPLASH SCREEN LOGIC
-       ========================================================================= */
-    function initSplashScreen() {
-      const bar = document.getElementById('splash-progress-bar');
-      const text = document.getElementById('splash-progress-text');
-      const status = document.getElementById('splash-status-text');
-
-      setTimeout(() => {
-        if (bar) bar.style.width = '55%';
-        if (text) text.innerText = '55%';
-        if (status) status.innerText = 'Menghubungkan Server SSO & Database...';
-      }, 700);
-
-      setTimeout(() => {
-        if (bar) bar.style.width = '88%';
-        if (text) text.innerText = '88%';
-        if (status) status.innerText = 'Menyinkronkan Rekapitulasi & Raport...';
-      }, 1600);
-
-      setTimeout(() => {
-        if (bar) bar.style.width = '100%';
-        if (text) text.innerText = '100%';
-        if (status) status.innerText = 'Portal Terpadu Siap!';
-      }, 2400);
-
-      setTimeout(() => {
-        dismissSplash();
-      }, 3400);
-    }
-
-    function dismissSplash() {
-      const splash = document.getElementById('splash-screen');
-      if (splash) {
-        splash.classList.add('opacity-0', 'scale-105', 'pointer-events-none');
-        setTimeout(() => splash.classList.add('hidden'), 700);
-      }
-    }
-
-    function replaySplash() {
-      const splash = document.getElementById('splash-screen');
-      if (splash) {
-        splash.classList.remove('hidden', 'opacity-0', 'scale-105', 'pointer-events-none');
-        const bar = document.getElementById('splash-progress-bar');
-        const text = document.getElementById('splash-progress-text');
-        if (bar) bar.style.width = '20%';
-        if (text) text.innerText = '20%';
-        initSplashScreen();
-      }
-    }
-
-    /* =========================================================================
-       5. SECURITY LOCK TOGGLE & PIN
+       4. SECURITY LOCK TOGGLE & PIN
        ========================================================================= */
     function handleToggleLock() {
       if (state.isLocked) {
@@ -4225,8 +4084,6 @@ break-inside: avoid !important;
     /* =========================================================================
        16. BINDING GLOBAL & BOOTSTRAP APPLIKASI
        ========================================================================= */
-    window.dismissSplash = dismissSplash;
-    window.replaySplash = replaySplash;
     window.handleToggleLock = handleToggleLock;
     window.closePinModal = closePinModal;
     window.handleVerifyPin = handleVerifyPin;
@@ -4257,9 +4114,8 @@ break-inside: avoid !important;
     window.handleDownloadCurrentEvidence = handleDownloadCurrentEvidence;
     window.downloadEvidenceDirect = downloadEvidenceDirect;
 
-    // BOOTSTRAP RESILIENT: Pastikan startApp berjalan lancar baik saat DOM masih loading maupun sudah selesai
+    // BOOTSTRAP RESILIENT: Mulai portal langsung seketika
     function startApp() {
-      initSplashScreen();
       renderNavTabs();
       renderCurrentModule(); 
       updateHeaderCounts();
