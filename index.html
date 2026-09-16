@@ -144,6 +144,21 @@ break-inside: avoid !important;
     </div>
   </div>
 
+  <!-- FAIL-SAFE SPLASH SCREEN SCRIPT (Jaminan 100% Anti-Stuck di GitHub Pages) -->
+  <script>
+    window.dismissSplash = function() {
+      const splash = document.getElementById('splash-screen');
+      if (splash) {
+        splash.classList.add('opacity-0', 'scale-105', 'pointer-events-none');
+        setTimeout(() => splash.classList.add('hidden'), 700);
+      }
+    };
+    // Auto-dismiss darurat maksimal 3.5 detik jika ada kendala jaringan/CDN di GitHub
+    setTimeout(() => {
+      if (typeof window.dismissSplash === 'function') window.dismissSplash();
+    }, 3500);
+  </script>
+
   <!-- HEADER RESMI SSO -->
   <header class="bg-[#6B1214] text-white shadow-xl sticky top-0 z-40 border-b-4 border-[#A32023] print:hidden">
     <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-wrap justify-between items-center gap-3">
@@ -158,7 +173,16 @@ break-inside: avoid !important;
         <div>
           <div class="flex items-center gap-2">
             <span class="font-extrabold tracking-widest text-[#D4AF37] text-base sm:text-lg uppercase drop-shadow-sm group-hover:text-amber-200 transition-colors">ADRENALIN FK UNWAHAS</span>
-            <span class="text-[10px] bg-red-950 text-emerald-300 px-2 py-0.5 rounded font-mono border border-emerald-800/80 flex items-center gap-1.5 shadow-xs"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>FIREBASE SYNC</span>
+            <button
+              id="firebase-status-badge"
+              type="button"
+              onclick="openFirebaseConfigModal()"
+              class="text-[10px] bg-red-950 text-emerald-300 px-2 py-0.5 rounded font-mono border border-emerald-800/80 flex items-center gap-1.5 shadow-xs cursor-pointer hover:bg-red-900 transition-colors"
+              title="Klik untuk status atau konfigurasi Firebase"
+            >
+              <span id="firebase-status-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span id="firebase-status-text">FIREBASE SYNC</span>
+            </button>
           </div>
           <p class="text-[11px] text-red-200 tracking-wider">Portal Terpadu Sistem Kedisiplinan & Etika Akademika</p>
         </div>
@@ -493,6 +517,54 @@ break-inside: avoid !important;
           </button>
           <button type="button" onclick="closeEvidenceModal()" class="px-4 py-1.5 bg-[#8B181B] hover:bg-[#6B1214] text-white rounded-lg font-bold text-xs cursor-pointer">
             Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SETUP FIREBASE CONFIG (UNTUK DEPLOYMENT GITHUB PAGES) -->
+  <div id="modal-firebase-config" class="fixed inset-0 z-[85] hidden items-center justify-center bg-black bg-opacity-70 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-300 animate-in fade-in zoom-in-95">
+      <div class="bg-[#6B1214] text-white px-5 py-3.5 flex justify-between items-center border-b-2 border-amber-400">
+        <div class="flex items-center gap-2">
+          <i data-lucide="cloud" class="w-5 h-5 text-amber-300"></i>
+          <h3 class="font-black text-sm sm:text-base">Pengaturan Koneksi Firebase</h3>
+        </div>
+        <button type="button" onclick="closeFirebaseConfigModal()" class="text-red-200 hover:text-white font-bold p-1 rounded hover:bg-white/10 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-5 space-y-4 text-xs sm:text-sm text-gray-700">
+        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 leading-relaxed">
+          <strong>Deployment GitHub Pages:</strong> Untuk menghubungkan sinkronisasi live antarperangkat di GitHub, tempelkan objek <code>firebaseConfig</code> dari Firebase Console Anda di bawah ini:
+        </div>
+        <div>
+          <label class="block font-bold text-gray-800 mb-1">JSON / Object Firebase Config:</label>
+          <textarea
+            id="input-custom-firebase-config"
+            rows="6"
+            placeholder='{\n  "apiKey": "AIzaSy...",\n  "authDomain": "projek-anda.firebaseapp.com",\n  "projectId": "projek-anda",\n  "storageBucket": "projek-anda.appspot.com",\n  "messagingSenderId": "...",\n  "appId": "..."\n}'
+            class="w-full border border-gray-300 rounded-lg p-2.5 font-mono text-xs bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-red-700"
+          ></textarea>
+        </div>
+        <p class="text-[11px] text-gray-500">
+          *Pastikan <strong>Authentication (Anonymous)</strong> dan <strong>Cloud Firestore</strong> telah aktif di console.firebase.google.com.
+        </p>
+        <div class="flex justify-end gap-2 pt-2 border-t">
+          <button
+            type="button"
+            onclick="closeFirebaseConfigModal()"
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-bold text-xs cursor-pointer"
+          >
+            Tutup
+          </button>
+          <button
+            type="button"
+            onclick="saveCustomFirebaseConfig()"
+            class="px-4 py-2 bg-[#8B181B] hover:bg-[#6B1214] text-white rounded-lg font-bold text-xs cursor-pointer shadow-sm active:scale-95"
+          >
+            Simpan & Hubungkan
           </button>
         </div>
       </div>
@@ -1235,14 +1307,43 @@ break-inside: avoid !important;
     ];
 
     /* =========================================================================
-       2. MANAJEMEN STATE & FIREBASE LIVE SYNC
+       2. MANAJEMEN STATE & FIREBASE LIVE SYNC (SAFE FOR GITHUB & CANVAS)
        ========================================================================= */
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-adrenalin-app';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    
+    // Deteksi cerdas konfigurasi Firebase
+    let firebaseConfig = null;
+    if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+      try {
+        firebaseConfig = typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config;
+      } catch (e) {
+        console.warn("Gagal parse __firebase_config:", e);
+      }
+    }
+    if (!firebaseConfig) {
+      const savedConfig = localStorage.getItem('adrenalin_custom_firebase_config');
+      if (savedConfig) {
+        try {
+          firebaseConfig = JSON.parse(savedConfig);
+        } catch(e) {}
+      }
+    }
+
+    let app = null;
+    let auth = null;
+    let db = null;
     let user = null;
+
+    // Inisialisasi Firebase hanya jika konfigurasi memiliki properti valid
+    if (firebaseConfig && (firebaseConfig.apiKey || firebaseConfig.projectId)) {
+      try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+      } catch (err) {
+        console.warn("Firebase gagal diinisialisasi secara langsung:", err);
+      }
+    }
 
     const state = {
       currentModule: 'tatib_peserta',
@@ -1271,10 +1372,36 @@ break-inside: avoid !important;
       if (infoCountEl) infoCountEl.innerText = state.students.length;
     }
 
+    function updateFirebaseBadge() {
+      const badge = document.getElementById('firebase-status-badge');
+      const dot = document.getElementById('firebase-status-dot');
+      const text = document.getElementById('firebase-status-text');
+      if (!badge || !dot || !text) return;
+
+      if (user && db) {
+        badge.className = "text-[10px] bg-red-950 text-emerald-300 px-2 py-0.5 rounded font-mono border border-emerald-800/80 flex items-center gap-1.5 shadow-xs cursor-pointer hover:bg-red-900 transition-colors";
+        dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse";
+        text.innerText = "FIREBASE SYNC";
+      } else if (app && !user) {
+        badge.className = "text-[10px] bg-amber-950 text-amber-300 px-2 py-0.5 rounded font-mono border border-amber-700/80 flex items-center gap-1.5 shadow-xs cursor-pointer hover:bg-amber-900 transition-colors";
+        dot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping";
+        text.innerText = "CONNECTING...";
+      } else {
+        badge.className = "text-[10px] bg-stone-900 text-amber-200 px-2 py-0.5 rounded font-mono border border-amber-600/80 flex items-center gap-1.5 shadow-xs cursor-pointer hover:bg-stone-800 transition-colors";
+        dot.className = "w-1.5 h-1.5 rounded-full bg-amber-400";
+        text.innerText = "SETUP FIREBASE";
+      }
+    }
+
     /* =========================================================================
        3. FIREBASE REALTIME LISTENERS & AUTH (MURNI ANONYMOUS & CLOUD SYNC)
        ========================================================================= */
     async function initFirebase() {
+      if (!app || !auth || !db) {
+        updateFirebaseBadge();
+        return;
+      }
+
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           await signInWithCustomToken(auth, __initial_auth_token);
@@ -1283,6 +1410,7 @@ break-inside: avoid !important;
         }
         user = auth.currentUser;
         if (user) {
+          updateFirebaseBadge();
           setupRealtimeListeners();
         }
       } catch (err) {
@@ -1291,18 +1419,20 @@ break-inside: avoid !important;
           await signInAnonymously(auth);
           user = auth.currentUser;
           if (user) {
+            updateFirebaseBadge();
             setupRealtimeListeners();
           }
         } catch (anonErr) {
           console.error("Firebase Anonymous Auth gagal:", anonErr);
+          updateFirebaseBadge();
         }
       }
     }
 
     function setupRealtimeListeners() {
-      if (!user) return;
+      if (!user || !db) return;
 
-      // Listener 1: Mahasiswa Sentral (Strict Path /artifacts/{appId}/public/data/students)
+      // Listener 1: Mahasiswa Sentral
       onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'students'), (snap) => {
         const cloudStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         const map = new Map();
@@ -1326,30 +1456,79 @@ break-inside: avoid !important;
         }
       }, (error) => console.error("Firebase Sync Error (Students):", error));
 
-      // Listener 2: Rekap Adrenalin (Strict Path /artifacts/{appId}/public/data/records)
+      // Listener 2: Rekap Adrenalin
       onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'records'), (snap) => {
         state.recordsAdrenalin = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.timestamp - a.timestamp);
         if (['rekap_adrenalin', 'raport_terpadu'].includes(state.currentModule)) renderCurrentModule();
       }, (error) => console.error("Firebase Sync Error (Adrenalin Records):", error));
 
-      // Listener 3: Aturan Custom Adrenalin (Strict Path /artifacts/{appId}/public/data/custom_rules)
+      // Listener 3: Aturan Custom Adrenalin
       onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'custom_rules'), (snap) => {
         state.customRulesAdrenalin = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
         if (state.currentModule === 'rekap_adrenalin') renderCurrentModule();
       }, (error) => console.error("Firebase Sync Error (Custom Rules Adrenalin):", error));
 
-      // Listener 4: Laporan Pemantauan (Strict Path /artifacts/{appId}/public/data/records_pemantauan)
+      // Listener 4: Laporan Pemantauan
       onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'records_pemantauan'), (snap) => {
         state.recordsPemantauan = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.timestamp - a.timestamp);
         if (['pemantauan_1th', 'raport_terpadu'].includes(state.currentModule)) renderCurrentModule();
       }, (error) => console.error("Firebase Sync Error (Pemantauan Records):", error));
 
-      // Listener 5: Aturan Custom Pemantauan (Strict Path /artifacts/{appId}/public/data/custom_rules_pemantauan)
+      // Listener 5: Aturan Custom Pemantauan
       onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'custom_rules_pemantauan'), (snap) => {
         state.customRulesPemantauan = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
         if (state.currentModule === 'pemantauan_1th') renderCurrentModule();
       }, (error) => console.error("Firebase Sync Error (Custom Rules Pemantauan):", error));
     }
+
+    window.openFirebaseConfigModal = function() {
+      const modal = document.getElementById('modal-firebase-config');
+      const textarea = document.getElementById('input-custom-firebase-config');
+      const current = localStorage.getItem('adrenalin_custom_firebase_config');
+      if (textarea && current) {
+        textarea.value = current;
+      }
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+      lucide.createIcons();
+    };
+
+    window.closeFirebaseConfigModal = function() {
+      const modal = document.getElementById('modal-firebase-config');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    window.saveCustomFirebaseConfig = function() {
+      const text = document.getElementById('input-custom-firebase-config')?.value?.trim();
+      if (!text) {
+        showFeedbackModal('Konfigurasi Kosong', 'Silakan tempelkan objek konfigurasi Firebase Anda.');
+        return;
+      }
+      try {
+        let cleaned = text;
+        if (cleaned.includes('{') && cleaned.includes('}')) {
+          cleaned = cleaned.substring(cleaned.indexOf('{'), cleaned.lastIndexOf('}') + 1);
+        }
+        // Jika berformat JS object tanpa petik pada key
+        cleaned = cleaned.replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2":').replace(/'/g, '"');
+        const parsed = JSON.parse(cleaned);
+        if (!parsed.apiKey || !parsed.projectId) {
+          showFeedbackModal('Format Tidak Sesuai', 'Konfigurasi harus menyertakan minimal apiKey dan projectId.');
+          return;
+        }
+        localStorage.setItem('adrenalin_custom_firebase_config', JSON.stringify(parsed));
+        closeFirebaseConfigModal();
+        showFeedbackModal('Konfigurasi Disimpan', 'Konfigurasi berhasil disimpan! Halaman akan dimuat ulang untuk menghubungkan ke Firebase.', false);
+        setTimeout(() => window.location.reload(), 1500);
+      } catch (e) {
+        showFeedbackModal('Gagal Membaca Config', 'Pastikan format JSON yang Anda masukkan valid.');
+      }
+    };
 
     /* =========================================================================
        4. SPLASH SCREEN LOGIC
@@ -4078,17 +4257,22 @@ break-inside: avoid !important;
     window.handleDownloadCurrentEvidence = handleDownloadCurrentEvidence;
     window.downloadEvidenceDirect = downloadEvidenceDirect;
 
-    window.addEventListener('DOMContentLoaded', () => {
+    // BOOTSTRAP RESILIENT: Pastikan startApp berjalan lancar baik saat DOM masih loading maupun sudah selesai
+    function startApp() {
       initSplashScreen();
       renderNavTabs();
-      
-      // PERBAIKAN: Menjalankan render langsung agar modul Tatib Peserta langsung muncul tanpa menunggu Firebase
       renderCurrentModule(); 
-      
       updateHeaderCounts();
       updateLockUI();
+      updateFirebaseBadge();
       initFirebase();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startApp);
+    } else {
+      startApp();
+    }
   </script>
 </body>
 </html>
